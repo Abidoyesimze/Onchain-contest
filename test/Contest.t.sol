@@ -18,7 +18,7 @@ contract ContestTest is Test {
     function test_CreateContest() public {
         vm.prank(creator);
         uint256 contestId = contest.createContest(1 ether, 10);
-        
+
         assertEq(contestId, 0);
         Contest.ContestData memory contestData = contest.getContest(contestId);
         assertEq(contestData.contestId, 0);
@@ -31,11 +31,11 @@ contract ContestTest is Test {
     function test_JoinContest() public {
         vm.prank(creator);
         uint256 contestId = contest.createContest(1 ether, 10);
-        
+
         vm.prank(participant1);
         vm.deal(participant1, 1 ether);
         contest.joinContest{value: 1 ether}(contestId);
-        
+
         assertTrue(contest.participants(contestId, participant1));
         Contest.ContestData memory contestData = contest.getContest(contestId);
         assertEq(contestData.prizePool, 1 ether);
@@ -44,7 +44,7 @@ contract ContestTest is Test {
     function test_CannotJoinWithWrongFee() public {
         vm.prank(creator);
         uint256 contestId = contest.createContest(1 ether, 10);
-        
+
         vm.prank(participant1);
         vm.deal(participant1, 0.5 ether);
         vm.expectRevert("Incorrect entry fee");
@@ -54,16 +54,16 @@ contract ContestTest is Test {
     function test_CannotJoinWhenFull() public {
         vm.prank(creator);
         uint256 contestId = contest.createContest(1 ether, 2);
-        
+
         vm.deal(participant1, 1 ether);
         vm.deal(participant2, 1 ether);
-        
+
         vm.prank(participant1);
         contest.joinContest{value: 1 ether}(contestId);
-        
+
         vm.prank(participant2);
         contest.joinContest{value: 1 ether}(contestId);
-        
+
         address participant3 = address(4);
         vm.deal(participant3, 1 ether);
         vm.prank(participant3);
@@ -74,11 +74,11 @@ contract ContestTest is Test {
     function test_CannotJoinTwice() public {
         vm.prank(creator);
         uint256 contestId = contest.createContest(1 ether, 10);
-        
+
         vm.deal(participant1, 2 ether);
         vm.prank(participant1);
         contest.joinContest{value: 1 ether}(contestId);
-        
+
         vm.prank(participant1);
         vm.expectRevert("Already joined");
         contest.joinContest{value: 1 ether}(contestId);
@@ -87,10 +87,10 @@ contract ContestTest is Test {
     function test_CloseContest() public {
         vm.prank(creator);
         uint256 contestId = contest.createContest(1 ether, 10);
-        
+
         vm.prank(creator);
         contest.closeContest(contestId);
-        
+
         vm.deal(participant1, 1 ether);
         vm.prank(participant1);
         vm.expectRevert("Contest is not open");

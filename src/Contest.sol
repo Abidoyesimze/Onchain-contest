@@ -19,26 +19,14 @@ contract Contest {
 
     mapping(uint256 => ContestData) public contests;
     mapping(uint256 => mapping(address => bool)) public participants;
-    
-    uint256 public nextContestId;
-    
-    event ContestCreated(
-        uint256 indexed contestId,
-        address indexed creator,
-        uint256 entryFee,
-        uint256 maxParticipants
-    );
-    
-    event ContestJoined(
-        uint256 indexed contestId,
-        address indexed participant,
-        uint256 entryFee
-    );
 
-    function createContest(
-        uint256 _entryFee,
-        uint256 _maxParticipants
-    ) external returns (uint256) {
+    uint256 public nextContestId;
+
+    event ContestCreated(uint256 indexed contestId, address indexed creator, uint256 entryFee, uint256 maxParticipants);
+
+    event ContestJoined(uint256 indexed contestId, address indexed participant, uint256 entryFee);
+
+    function createContest(uint256 _entryFee, uint256 _maxParticipants) external returns (uint256) {
         require(_entryFee > 0, "Entry fee must be greater than 0");
         require(_maxParticipants > 0, "Max participants must be greater than 0");
 
@@ -56,19 +44,16 @@ contract Contest {
         });
 
         emit ContestCreated(contestId, msg.sender, _entryFee, _maxParticipants);
-        
+
         return contestId;
     }
 
     function joinContest(uint256 _contestId) external payable {
         ContestData storage contest = contests[_contestId];
-        
+
         require(contest.contestId == _contestId, "Contest does not exist");
         require(contest.status == Status.Open, "Contest is not open");
-        require(
-            contest.currentParticipants < contest.maxParticipants,
-            "Contest is full"
-        );
+        require(contest.currentParticipants < contest.maxParticipants, "Contest is full");
         require(msg.value == contest.entryFee, "Incorrect entry fee");
         require(!participants[_contestId][msg.sender], "Already joined");
 
@@ -87,7 +72,7 @@ contract Contest {
         ContestData storage contest = contests[_contestId];
         require(contest.creator == msg.sender, "Only creator can close");
         require(contest.status == Status.Open, "Contest already closed");
-        
+
         contest.status = Status.Closed;
     }
 }
